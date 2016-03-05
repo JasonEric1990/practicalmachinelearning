@@ -1,0 +1,141 @@
+---
+title: "Pratical machine learning coursera"
+author: "eric"
+date: "2016年3月5日"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<h1 class="title">Final Project Report - Practical Machine Learning Course</h1>
+<h2>Background</h2>
+
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
+
+```{r echo=FALSE}
+url="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+url2="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+```
+
+```{r}
+training.data=read.csv(url,header = TRUE)
+test.data=read.csv(url2,header = TRUE)
+```
+```{r}
+library(caret)
+library(rpart)
+library(randomForest)
+library(ggplot2)
+
+```
+Depending on the background,we want to use other covariate(especially the exercise' quantity data)to predict the performance not to depend on person.check whether the anticipant are the same or not,preventing the bias that will made.
+
+<h2>Exploratory</h2>
+just to see the person are same or not
+```{r}
+levels(training.data$user_name)
+levels(test.data$user_name)
+```
+<h2>Cleaning data</h2>
+clean out the other unuseful covariate
+```{r}
+training.data=training.data[,-(1:5)]
+test.data=test.data[,-(1:5)]
+```
+clean the NAs that over the 0.8 of observation
+```{r}
+training.data=training.data[!colSums(is.na(training.data))>nrow(training.data)*0.8]
+test.data=test.data[!colSums(is.na(test.data))>nrow(test.data)*0.8]
+```
+find the near zero var
+```{r}
+head(nearZeroVar(training.data, saveMetrics=TRUE))
+head(nearZeroVar(test.data, saveMetrics=TRUE))
+training.nzv=training.data[!nearZeroVar(training.data, saveMetrics=TRUE)$nzv==TRUE]
+test.nzv=test.data[!nearZeroVar(test.data, saveMetrics=TRUE)$nzv==TRUE]
+``````
+check out if the last covariate is the same or not
+``````{r}
+lookifthesame=ifelse(colnames(test.nzv)==colnames(training.nzv),"T","F")
+lookifthesame
+``````
+Only the last one becasue the last one is the column we need to answer the predict result.
+
+<h2>Dataspliting</h2>
+
+Because the test data is really small and we don't know the result(out of box).so I need to do the cross validation to find the best accurary also reduce the rate of overfitting.
+
+Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of cross validation ,0.2 of cross validation test set,0.2 of subtesting(all depend by the training data).
+``````{r}
+set.seed(1234)
+trainIndex=createDataPartition(y=training.nzv$classe,p=0.8,list=FALSE)
+subtraining=training.nzv[trainIndex,]
+subtesting=training.nzv[-trainIndex,]
+set.seed(1234)
+flods=createFolds(y=subtraining$classe,list=TRUE,k=4,returnTrain=TRUE)
+subtrain1=subtraining[flods$Fold1,]
+subtrain2=subtraining[flods$Fold2,]
+subtrain3=subtraining[flods$Fold3,]
+subtrain4=subtraining[flods$Fold4,]
+subcv1=subtraining[-flods$Fold1,]
+subcv2=subtraining[-flods$Fold2,]
+subcv3=subtraining[-flods$Fold3,]
+subcv4=subtraining[-flods$Fold4,]
+``````
+<h2>Modeling</h2>
+use the trainControl to set the parameter
+``````{r}
+control <- trainControl(method = "cv", number = 4)
+``````{r}
+set.seed(1234)
+modfit.rp1=train(classe~.,method="rpart",trControl=control ,data=subtrain1)
+predrp1=predict(modfit.rp1,subcv1)
+confusionMatrix(predrp1,subcv1$classe)$overall
+``````
+The accuracy is really bad,I add some preProces parameter to see if it perform better
+``````{r}
+set.seed(1234)
+modfit.rp2=train(classe~.,method="rpart",preProcess=c("scale","center"),trControl=control ,data=subtrain2)
+predrp2=predict(modfit.rp1,subcv2)
+confusionMatrix(predrp2,subcv2$classe)
+``````
+seems the rpart's performance is still not good,so I use gbm to test
+``````{r}
+set.seed(1234)
+modfit.gbm=train(classe~.,method="gbm",trControl=control ,data=subtrain3,verbose=FALSE)
+predgbm=predict(modfit.gbm,subcv3)
+confusionMatrix(predgbm,subcv3$classe)
+``````
+It's reaaly good.I use other method to see it will be better or the same(I don't use random forest because it's really slow to my computer). I use svm to check out(no tuning the parameters)
+```````{r}
+library(e1071)
+set.seed(1234)
+modfit.svm=svm(classe~.,trControl=control ,data=subtrain4)
+predsvm=predict(modfit.svm,subcv4)
+confusionMatrix(predsvm,subcv4$classe)
+```````
+it's seems gbm is better I use subtesting to check out of sample error
+```````{r}
+predgbm=predict(modfit.gbm,subtesting)
+confusionMatrix(predgbm,subtesting$classe)$overall
+```````
+It seen not bad just 0.0107061 out of sample error.Then I look the variance important of gbm(firt six)
+```````{r}
+varimp=varImp(modfit.gbm, scale = FALSE)
+```````
+Then we look closer
+```````{r}
+plot(varimp,top=10) 
+
+```````````
+
+
+We can see the more detail of variance importance
+<h2>The Prediction quiz</h2>
+```````````{r}
+pred.reult=predict(modfit.gbm,test.nzv)
+pred.reult
+````````````
+
