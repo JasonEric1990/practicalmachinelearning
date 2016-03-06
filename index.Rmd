@@ -73,7 +73,7 @@ Only the last one becasue the last one is the column we need to answer the predi
 
 Because the test data is really small and we don't know the result(out of box).so I need to do the cross validation to find the best accurary also reduce the rate of overfitting.
 
-Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of cross validation ,0.2 of cross validation test set,0.2 of subtesting(all depend by the training data).
+Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of subtraing set,0.2 of cross validation ,0.2 of subtest set(all depend by the training data,and I only use the subtraining set to train the model).
 ``````{r}
 set.seed(1234)
 trainIndex=createDataPartition(y=training.nzv$classe,p=0.8,list=FALSE)
