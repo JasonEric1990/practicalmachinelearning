@@ -130,7 +130,7 @@ test.data=read.csv(url2,header = TRUE)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
 <pre class="r"><code>library(rpart)</code></pre>
-<p>Depending on the background,we want to use other covariate(especially the exercise’ quantity data)to predict the performance not to depend on person.check whether the anticipant are the same or not,preventing the bias that will made.</p>
+<p>Depending on the background,we want to use other variate(especially the exercise’ quantity data)to predict the performance not to depend on person or times ,etc.Check whether the anticipant are the same or not,preventing the bias that will made.</p>
 <h2>
 Exploratory
 </h2>
@@ -286,7 +286,7 @@ lookifthesame</code></pre>
 Dataspliting
 </h2>
 <p>Because the test data is really small and we don’t know the result(out of box).so I need to do the cross validation to find the best accurary also reduce the rate of overfitting.</p>
-<p>Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of cross validation ,0.2 of cross validation test set,0.2 of subtesting(all depend by the training data).</p>
+<p>Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of subtraining set,0.2 of cross validation ,0.2 of subtest set(all depend by the training data,and I only use subtraining data to train the model).</p>
 <pre class="r"><code>set.seed(1234)
 trainIndex=createDataPartition(y=training.nzv$classe,p=0.8,list=FALSE)
 subtraining=training.nzv[trainIndex,]
