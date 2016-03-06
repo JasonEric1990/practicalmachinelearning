@@ -28,7 +28,7 @@ library(caret)
 library(rpart)
 
 ```
-Depending on the background,we want to use other covariate(especially the exercise' quantity data)to predict the performance not to depend on person.check whether the anticipant are the same or not,preventing the bias that will made.
+Depending on the background,we want to use other covariate(especially the exercise' quantity data)to predict the performance not to depend on person or times ,etc.And I also check whether the anticipant are the same or not,preventing the bias that will made.
 
 <h2>Exploratory</h2>
 just to see the person are same or not
