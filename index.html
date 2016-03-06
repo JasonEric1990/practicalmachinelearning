@@ -286,7 +286,7 @@ lookifthesame</code></pre>
 Dataspliting
 </h2>
 <p>Because the test data is really small and we don’t know the result(out of box).so I need to do the cross validation to find the best accurary also reduce the rate of overfitting.</p>
-<p>Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of subtraining set,0.2 of cross validation ,0.2 of subtest set(all depend by the training data,and I only use subtraining data to train the model).</p>
+<p>Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of subtraining set,0.2 of cross validation ,0.2 of subtest set(all depend by the training data,and I only use subtraining set to train the model).</p>
 <pre class="r"><code>set.seed(1234)
 trainIndex=createDataPartition(y=training.nzv$classe,p=0.8,list=FALSE)
 subtraining=training.nzv[trainIndex,]
