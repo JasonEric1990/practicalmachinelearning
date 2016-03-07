@@ -10,11 +10,12 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 <h1 class="title">Final Project Report - Practical Machine Learning Course</h1>
-<h2>Background</h2>
-
-Using devices such as Jawbone Up, Nike FuelBand, and Fitbit it is now possible to collect a large amount of data about personal activity relatively inexpensively. These type of devices are part of the quantified self movement – a group of enthusiasts who take measurements about themselves regularly to improve their health, to find patterns in their behavior, or because they are tech geeks. One thing that people regularly do is quantify how much of a particular activity they do, but they rarely quantify how well they do it. In this project, your goal will be to use data from accelerometers on the belt, forearm, arm, and dumbell of 6 participants. They were asked to perform barbell lifts correctly and incorrectly in 5 different ways. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har (see the section on the Weight Lifting Exercise Dataset).
-
-```{r echo=FALSE}
+<h2>Link the file directly</h2>
+```{r}
+library(caret)
+library(rpart)
+library(data.table)
+```{r}
 url="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
 url2="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
 ```
@@ -23,12 +24,8 @@ url2="https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
 training.data=read.csv(url,header = TRUE)
 test.data=read.csv(url2,header = TRUE)
 ```
-```{r}
-library(caret)
-library(rpart)
 
-```
-Depending on the background,we want to use other covariate(especially the exercise' quantity data)to predict the performance not to depend on person or times ,etc.And I also check whether the anticipant are the same or not,preventing the bias that will made.
+Depending on the background,we want to use other covariate(especially the exercise' quantity and qualitative data)to predict the performance not to depend on person or times ,etc.And I also check whether the anticipant are the same or not,preventing the bias that will made.
 
 <h2>Exploratory</h2>
 just to see the person are same or not
@@ -73,7 +70,8 @@ Only the last one becasue the last one is the column we need to answer the predi
 
 Because the test data is really small and we don't know the result(out of box).so I need to do the cross validation to find the best accurary also reduce the rate of overfitting.
 
-Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is 0.6 of subtraing set,0.2 of cross validation ,0.2 of subtest set(all depend by the training data,and I only use the subtraining set to train the model).
+Split the training data into 0.8 subtraining and 0.2 subtesting ,after that I split the subtraining to 4 cross validation .Finally the output is __0.6 of subtraing set,0.2 of cross validation ,0.2 of subtest set__
+__(All depend by the training data,and I only use the subtraining set to train the model.Finally use the subtesting set to test the out of sample error).__
 ``````{r}
 set.seed(1234)
 trainIndex=createDataPartition(y=training.nzv$classe,p=0.8,list=FALSE)
@@ -125,10 +123,17 @@ confusionMatrix(predsvm,subcv4$classe)
 Gbm seem better than Svm.I use subtesting to check out of sample error of both model
 ```````{r}
 predgbm=predict(modfit.gbm,subtesting)
+predsvm=predict(modfit.svm,subtesting)
 confusionMatrix(predgbm,subtesting$classe)$overall
-oose <- 1 - as.numeric(confusionMatrix(subtesting$classe, predictgbm)$overall[1])
+confusionMatrix(predsvm,subtesting$classe)$overall
+oose.gbm <- 1 - as.numeric(confusionMatrix(subtesting$classe, predgbm)$overall[1])
+oose.gbm 
+oose.svm <- 1 - as.numeric(confusionMatrix(subtesting$classe, predsvm)$overall[1])
+oose.svm
 ```````
-Gbm is still better than Svm.It’s not bad ,and just have less than 0.01 out of sample error.
+Gbm is still better than Svm,and just have __less than 0.01 out of sample error.__
+
+<h2>Appendix:Variance important and some conclusion</h2>
 Then I look the variance important of gbm(firt ten)
 ```````{r}
 varimp=varImp(modfit.gbm, scale = FALSE)
