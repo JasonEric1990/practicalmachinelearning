@@ -126,8 +126,10 @@ Gbm seem better than Svm.I use subtesting to check out of sample error of both m
 ```````{r}
 predgbm=predict(modfit.gbm,subtesting)
 confusionMatrix(predgbm,subtesting$classe)$overall
+oose <- 1 - as.numeric(confusionMatrix(subtesting$classe, predictgbm)$overall[1])
 ```````
-Gbm is still better than Svm.It’s not bad ,and just have less than 0.01 out of sample error.Then I look the variance important of gbm(firt ten)
+Gbm is still better than Svm.It’s not bad ,and just have less than 0.01 out of sample error.
+Then I look the variance important of gbm(firt ten)
 ```````{r}
 varimp=varImp(modfit.gbm, scale = FALSE)
 ```````
