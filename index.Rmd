@@ -133,7 +133,7 @@ oose.svm
 ```````
 Gbm is still better than Svm,and just have __less than 0.01 out of sample error.__
 
-<h2>Appendix:Variance important and some conclusion</h2>
+<h2>Appendix:Variate importance and some conclusion</h2>
 Then I look the variance important of gbm(firt ten)
 ```````{r}
 varimp=varImp(modfit.gbm, scale = FALSE)
