@@ -15,4 +15,4 @@ https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
 Goal:building the prediction model and explain the process, and make the prediction of test data at the last
 
 This is the web page of my assignment wish you like it.And don't hesitate to give me any suggestion!! I'll be very appreciate about it.Let's learn more from discussion!!
-http://jasoneric1990.github.io/practicalmachinelearning/
+http://JasonEricZhan.github.io/practicalmachinelearning/
